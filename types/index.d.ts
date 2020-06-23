@@ -4,7 +4,7 @@
 //                 Matt R. Wilson <https://github.com/mastermatt>
 //                 Satana Charuwichitratana <https://github.com/micksatana>
 //                 Shrey Jain <https://github.com/shreyjain1994>
-// TypeScript Version: 3.4
+// TypeScript Version: 3.7
 
 /// <reference types="node" />
 
@@ -433,6 +433,7 @@ declare namespace Knex {
     into: Table<TRecord, TResult>;
     table: Table<TRecord, TResult>;
     distinct: Distinct<TRecord, TResult>;
+    distinctOn: DistinctOn<TRecord, TResult>;
 
     // Joins
     join: Join<TRecord, TResult>;
@@ -909,6 +910,19 @@ declare namespace Knex {
   interface Distinct<TRecord extends {}, TResult = {}[]>
     extends ColumnNameQueryBuilder<TRecord, TResult> {}
 
+  interface DistinctOn<TRecord extends {}, TResult = {}[]> {
+    <ColNameUT extends keyof TRecord>(
+      ...columnNames: readonly ColNameUT[]
+    ): QueryBuilder<TRecord, TResult>;
+
+    <ColNameUT extends keyof TRecord>(
+      columnNames: readonly ColNameUT[]
+    ): QueryBuilder<TRecord, TResult>;
+
+    (...columnNames: readonly string[]): QueryBuilder<TRecord, TResult>;
+    (columnNames: readonly string[]): QueryBuilder<TRecord, TResult>;
+  }
+
   interface JoinCallback {
     (this: JoinClause, join: JoinClause): void;
   }
@@ -1339,11 +1353,7 @@ declare namespace Knex {
   interface RawQueryBuilder<TRecord = any, TResult = unknown[]> {
     <TResult2 = TResult>(
       sql: string,
-      ...bindings: readonly RawBinding[]
-    ): QueryBuilder<TRecord, TResult2>;
-    <TResult2 = TResult>(
-      sql: string,
-      bindings: readonly RawBinding[] | ValueDict
+      bindings?: readonly RawBinding[] | ValueDict | RawBinding
     ): QueryBuilder<TRecord, TResult2>;
     <TResult2 = TResult>(raw: Raw<TResult2>): QueryBuilder<
       TRecord,
